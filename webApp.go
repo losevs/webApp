@@ -30,10 +30,8 @@ func Decrease(c *fiber.Ctx) error {
 }
 
 func GetTab(c *fiber.Ctx) error {
-	return c.JSON(table)
+	return c.JSON(ppl)
 }
-
-var id int
 
 type Request struct {
 	Name  string `json:"name"`
@@ -42,10 +40,11 @@ type Request struct {
 type Response struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
-	ID    int    `json:"id"`
+	ID    int    `json:"id" omitempty`
 }
 
-var table = []Response{}
+var id int
+var ppl = map[int]Response{}
 
 func TaskReq(c *fiber.Ctx) error {
 	var req Request
@@ -53,16 +52,34 @@ func TaskReq(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	id++
-	table = append(table, Response{
+	hum := Response{
 		Name:  req.Name,
 		Email: req.Email,
 		ID:    id,
-	})
-	return c.Status(fiber.StatusOK).JSON(Response{
+	}
+	ppl[id] = hum
+	return c.Status(fiber.StatusOK).JSON(hum)
+}
+
+func PatchReq(c *fiber.Ctx) error {
+	var req Request
+	if err := c.BodyParser(&req); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	needId, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	if _, isHere := ppl[int(needId)]; !isHere {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	changedTask := Response{
 		Name:  req.Name,
 		Email: req.Email,
-		ID:    id,
-	})
+		ID:    int(needId),
+	}
+	ppl[int(needId)] = changedTask
+	return c.Status(fiber.StatusOK).JSON(changedTask)
 }
 
 func main() {
@@ -73,6 +90,8 @@ func main() {
 	webApp.Get("/tab", GetTab)
 
 	webApp.Post("/task", TaskReq)
+
+	webApp.Patch("/patch/:id", PatchReq)
 
 	logrus.Fatal(webApp.Listen(":80")) //localhost
 }
