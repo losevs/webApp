@@ -40,7 +40,7 @@ type Request struct {
 type Response struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
-	ID    int    `json:"id" omitempty`
+	ID    int    `json:"id"`
 }
 
 var id int
@@ -82,6 +82,15 @@ func PatchReq(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(changedTask)
 }
 
+func DelReq(c *fiber.Ctx) error {
+	needId, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	delete(ppl, int(needId))
+	return c.SendStatus(fiber.StatusOK)
+}
+
 func main() {
 	webApp := fiber.New()
 	webApp.Get("/", Stat)
@@ -92,6 +101,8 @@ func main() {
 	webApp.Post("/task", TaskReq)
 
 	webApp.Patch("/patch/:id", PatchReq)
+
+	webApp.Delete("/del/:id", DelReq)
 
 	logrus.Fatal(webApp.Listen(":80")) //localhost
 }
