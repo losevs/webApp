@@ -43,6 +43,11 @@ type Response struct {
 	ID    int    `json:"id"`
 }
 
+// type PatchRequest struct {
+// 	Name  string `json:"name,omitempty"`
+// 	Email string `json:"email,omitempty"`
+// }
+
 var id int
 var ppl = map[int]Response{}
 
@@ -72,6 +77,12 @@ func PatchReq(c *fiber.Ctx) error {
 	}
 	if _, isHere := ppl[int(needId)]; !isHere {
 		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	if len(req.Name) == 0 {
+		req.Name = ppl[int(needId)].Name
+	}
+	if len(req.Email) == 0 {
+		req.Email = ppl[int(needId)].Email
 	}
 	changedTask := Response{
 		Name:  req.Name,
