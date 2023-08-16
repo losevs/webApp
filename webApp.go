@@ -30,7 +30,7 @@ func Decrease(c *fiber.Ctx) error {
 }
 
 func GetTab(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(ppl)
+	return c.JSON(ppl)
 }
 
 type Request struct {
@@ -41,11 +41,6 @@ type Response struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	ID    int    `json:"id"`
-}
-
-type PatchRequest struct {
-	Name  string `json:"name,omitempty"`
-	Email string `json:"email,omitempty"`
 }
 
 var id int
@@ -67,7 +62,7 @@ func TaskReq(c *fiber.Ctx) error {
 }
 
 func PatchReq(c *fiber.Ctx) error {
-	var req PatchRequest
+	var req Request
 	if err := c.BodyParser(&req); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
