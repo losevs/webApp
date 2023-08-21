@@ -43,11 +43,6 @@ type Response struct {
 	ID    int    `json:"id"`
 }
 
-// type PatchRequest struct {
-// 	Name  string `json:"name,omitempty"`
-// 	Email string `json:"email,omitempty"`
-// }
-
 var id int
 var ppl = map[int]Response{}
 
